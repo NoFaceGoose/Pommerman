@@ -32,6 +32,10 @@ public class SingleTreeNode
     private GameState rootState;
     private StateHeuristic rootStateHeuristic;
 
+    // Apply transpositions
+    private int node_key;
+    private String node_value;
+
     SingleTreeNode(MCTSParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
         this(p, null, -1, rnd, num_actions, actions, 0, null);
     }
