@@ -1,9 +1,10 @@
-package players.mcts;
+package players.mctspb;
 
 import core.GameState;
 import players.heuristics.AdvancedHeuristic;
 import players.heuristics.CustomHeuristic;
 import players.heuristics.StateHeuristic;
+import players.mctspb.MCTSPBParams;
 import utils.ElapsedCpuTimer;
 import utils.Types;
 import utils.Utils;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class SingleTreeNode {
-    public MCTSParams params;
+    public MCTSPBParams params;
 
     private SingleTreeNode parent;
     private SingleTreeNode[] children;
@@ -35,11 +36,11 @@ public class SingleTreeNode {
     private int node_key;
     private String node_value;
 
-    SingleTreeNode(MCTSParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
+    SingleTreeNode(MCTSPBParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
         this(p, null, -1, rnd, num_actions, actions, 0, null);
     }
 
-    private SingleTreeNode(MCTSParams p, SingleTreeNode parent, int childIdx, Random rnd, int num_actions,
+    private SingleTreeNode(MCTSPBParams p, SingleTreeNode parent, int childIdx, Random rnd, int num_actions,
                            Types.ACTIONS[] actions, int fmCallsCount, StateHeuristic sh) {
         this.params = p;
         this.fmCallsCount = fmCallsCount;
@@ -170,7 +171,8 @@ public class SingleTreeNode {
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
             double uctValue = childValue +
-                    params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon));
+                    params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon)) + 1 /
+                    (1 + child.nVisits + params.epsilon);
 
             uctValue = Utils.noise(uctValue, params.epsilon, this.m_rnd.nextDouble());     //break ties randomly
 

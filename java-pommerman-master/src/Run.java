@@ -2,6 +2,8 @@ import core.Game;
 import players.*;
 import players.mcts.MCTSParams;
 import players.mcts.MCTSPlayer;
+import players.mctspb.MCTSPBParams;
+import players.mctspb.MCTSPBPlayer;
 import players.rhea.RHEAPlayer;
 import players.rhea.utils.Constants;
 import players.rhea.utils.RHEAParams;
@@ -26,11 +28,14 @@ public class Run {
         System.out.println("\t\t 3 SimplePlayer");
         System.out.println("\t\t 4 RHEA 200 itereations, shift buffer, pop size 1, random init, length: 12");
         System.out.println("\t\t 5 MCTS 200 iterations, length: 12");
+        System.out.println("\t\t 6 Millisecond");
+        System.out.println("\t\t 7 SimplePlayer with last random step replaced with OSLA method");
+        System.out.println("\t\t 8 MCTS with progressive bias with OSLA opponent model 200 iterations, length: 12");
     }
 
     public static void main(String[] args) {
 
-        args = new String[]{"0", "100", "50", "-1", "1", "2", "3", "7"};
+        args = new String[]{"0", "2", "10", "-1", "8", "5", "5", "5"};
 
         //default
         if (args.length == 0)
@@ -128,6 +133,16 @@ public class Run {
                     case 7:
                         p = new SimpleVariantPlayer(seed, playerID++);
                         playerStr[i - 4] = "SimpleVariant";
+                        break;
+                    case 8:
+                        MCTSPBParams mctsPBParams = new MCTSPBParams();
+                        mctsPBParams.stop_type = mctsPBParams.STOP_ITERATIONS;
+                        mctsPBParams.num_iterations = 200;
+                        mctsPBParams.rollout_depth = 12;
+
+                        mctsPBParams.heuristic_method = mctsPBParams.CUSTOM_HEURISTIC;
+                        p = new MCTSPBPlayer(seed, playerID++, mctsPBParams);
+                        playerStr[i - 4] = "MCTSPB";
                         break;
                     default:
                         System.out.println("WARNING: Invalid agent ID: " + agentType);
