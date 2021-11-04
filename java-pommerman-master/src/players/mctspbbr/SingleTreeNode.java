@@ -165,11 +165,12 @@ public class SingleTreeNode {
 
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
+            // basic settings to use heuristic
             GameState hState = state.copy();
             roll(hState, actions[child.childIdx]);
 
-            double uctValue = childValue +
-                    params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon)) + rootStateHeuristic.evaluateState(hState) / (1 + child.nVisits + params.epsilon);
+            // use progressive bias at the end of the formula by using heuristic function
+            double uctValue = childValue + params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon)) + rootStateHeuristic.evaluateState(hState) / (1 + child.nVisits + params.epsilon);
 
             uctValue = Utils.noise(uctValue, params.epsilon, this.m_rnd.nextDouble());     //break ties randomly
 
@@ -195,6 +196,8 @@ public class SingleTreeNode {
 
         while (!finishRollout(state, thisDepth)) {
             int action = biasAction(state);
+            // int action = safeRandomAction(state);
+            roll(state, actions[action]);
             roll(state, actions[action]);
             thisDepth++;
         }
@@ -202,16 +205,18 @@ public class SingleTreeNode {
         return rootStateHeuristic.evaluateState(state);
     }
 
+    // biasing rollout function
     private int biasAction(GameState state) {
-        Types.TILETYPE[][] board = state.getBoard();
         ArrayList<Types.ACTIONS> actionsList = Types.ACTIONS.all();
+
+        Types.TILETYPE[][] board = state.getBoard();
         int width = board.length;
         int height = board[0].length;
 
+        // store the weight of each available action
         HashMap<Integer, Double> weights = new HashMap<>();
         double totalWeights = 0;
-        int bestAction = 0;
-
+        int biasAction = 0;
 
         for (int i = 0; i < actionsList.size(); i++) {
             Types.ACTIONS act = actionsList.get(i);
@@ -219,27 +224,62 @@ public class SingleTreeNode {
             Vector2d pos = state.getPosition();
             int x = pos.x + dir.x;
             int y = pos.y + dir.y;
+            // avoid unnecessarily using evaluation
             if (x >= 0 && x < width && y >= 0 && y < height)
                 if (board[y][x] != Types.TILETYPE.FLAMES) {
                     GameState stateCopy = state.copy();
                     roll(stateCopy, act);
                     double value = rootStateHeuristic.evaluateState(stateCopy);
+                    // store weight of each action
                     weights.put(i, value);
+                    //sum up the total weight for calculating
                     totalWeights += value;
                 }
         }
+
+        // get a random value between 0.0 and 1.0
         double randomValue = m_rnd.nextDouble();
+        // store the floor of interval of each comparison
         double lastValue = 0;
         for (int i = 0; i < weights.size(); i++) {
+            // exclude the unavailable action
             if (weights.get(i) != null) {
+                // using bias for actions accounting for more weight
                 if (lastValue <= randomValue && randomValue <= (lastValue + weights.get(i) / totalWeights)) {
-                    bestAction = i;
+                    biasAction = i;
                 } else {
                     lastValue += weights.get(i) / totalWeights;
                 }
             }
         }
-        return bestAction;
+        return biasAction;
+    }
+
+    private int safeRandomAction(GameState state) {
+        Types.TILETYPE[][] board = state.getBoard();
+        ArrayList<Types.ACTIONS> actionsToTry = Types.ACTIONS.all();
+        int width = board.length;
+        int height = board[0].length;
+
+        while (actionsToTry.size() > 0) {
+
+            int nAction = m_rnd.nextInt(actionsToTry.size());
+            Types.ACTIONS act = actionsToTry.get(nAction);
+            Vector2d dir = act.getDirection().toVec();
+
+            Vector2d pos = state.getPosition();
+            int x = pos.x + dir.x;
+            int y = pos.y + dir.y;
+
+            if (x >= 0 && x < width && y >= 0 && y < height)
+                if (board[y][x] != Types.TILETYPE.FLAMES)
+                    return nAction;
+
+            actionsToTry.remove(nAction);
+        }
+
+        //Uh oh...
+        return m_rnd.nextInt(num_actions);
     }
 
     @SuppressWarnings("RedundantIfStatement")
