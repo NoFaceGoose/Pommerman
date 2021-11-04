@@ -135,13 +135,13 @@ public class Run {
                         playerStr[i - 4] = "SimpleVariant";
                         break;
                     case 8:
-                        MCTSPBBRParams mctsPBParams = new MCTSPBBRParams();
-                        mctsPBParams.stop_type = mctsPBParams.STOP_ITERATIONS;
-                        mctsPBParams.num_iterations = 200;
-                        mctsPBParams.rollout_depth = 12;
+                        MCTSPBBRParams mctsPBBRParams = new MCTSPBBRParams();
+                        mctsPBBRParams.stop_type = mctsPBBRParams.STOP_ITERATIONS;
+                        mctsPBBRParams.num_iterations = 200;
+                        mctsPBBRParams.rollout_depth = 12;
 
-                        mctsPBParams.heuristic_method = mctsPBParams.CUSTOM_HEURISTIC;
-                        p = new MCTSPBBRPlayer(seed, playerID++, mctsPBParams);
+                        mctsPBBRParams.heuristic_method = mctsPBBRParams.CUSTOM_HEURISTIC;
+                        p = new MCTSPBBRPlayer(seed, playerID++, mctsPBBRParams);
                         playerStr[i - 4] = "MCTSPBBR";
                         break;
                     default:
