@@ -35,7 +35,7 @@ public class Run {
 
     public static void main(String[] args) {
 
-        args = new String[]{"0", "2", "10", "-1", "8", "5", "5", "5"};
+        args = new String[]{"0", "2", "10", "-1", "8", "5", "4", "3"};
 
         //default
         if (args.length == 0)

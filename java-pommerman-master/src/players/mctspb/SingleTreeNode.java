@@ -170,9 +170,11 @@ public class SingleTreeNode {
 
             childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
+            GameState hState = state.copy();
+            roll(hState, actions[child.childIdx]);
+
             double uctValue = childValue +
-                    params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon)) + 1 /
-                    (1 + child.nVisits + params.epsilon);
+                    params.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + params.epsilon)) + rootStateHeuristic.evaluateState(hState) / (1 + child.nVisits + params.epsilon);
 
             uctValue = Utils.noise(uctValue, params.epsilon, this.m_rnd.nextDouble());     //break ties randomly
 
