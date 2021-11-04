@@ -1,4 +1,4 @@
-package players.mctspb;
+package players.mctspbbr;
 
 import players.optimisers.ParameterSet;
 import utils.Pair;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
-public class MCTSPBParams implements ParameterSet {
+public class MCTSPBBRParams implements ParameterSet {
 
     // Constants
     public final double HUGE_NEGATIVE = -1000;

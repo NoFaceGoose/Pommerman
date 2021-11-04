@@ -2,8 +2,8 @@ import core.Game;
 import players.*;
 import players.mcts.MCTSParams;
 import players.mcts.MCTSPlayer;
-import players.mctspb.MCTSPBParams;
-import players.mctspb.MCTSPBPlayer;
+import players.mctspbbr.MCTSPBBRParams;
+import players.mctspbbr.MCTSPBBRPlayer;
 import players.rhea.RHEAPlayer;
 import players.rhea.utils.Constants;
 import players.rhea.utils.RHEAParams;
@@ -30,12 +30,12 @@ public class Run {
         System.out.println("\t\t 5 MCTS 200 iterations, length: 12");
         System.out.println("\t\t 6 Millisecond");
         System.out.println("\t\t 7 SimplePlayer with last random step replaced with OSLA method");
-        System.out.println("\t\t 8 MCTS with progressive bias with OSLA opponent model 200 iterations, length: 12");
+        System.out.println("\t\t 8 MCTS with progressive bias and biasing rollouts 200 iterations, length: 12");
     }
 
     public static void main(String[] args) {
 
-        args = new String[]{"0", "2", "10", "-1", "8", "5", "4", "3"};
+        args = new String[]{"0", "5", "10", "-1", "5", "4", "4", "8"};
 
         //default
         if (args.length == 0)
@@ -135,14 +135,14 @@ public class Run {
                         playerStr[i - 4] = "SimpleVariant";
                         break;
                     case 8:
-                        MCTSPBParams mctsPBParams = new MCTSPBParams();
+                        MCTSPBBRParams mctsPBParams = new MCTSPBBRParams();
                         mctsPBParams.stop_type = mctsPBParams.STOP_ITERATIONS;
                         mctsPBParams.num_iterations = 200;
                         mctsPBParams.rollout_depth = 12;
 
                         mctsPBParams.heuristic_method = mctsPBParams.CUSTOM_HEURISTIC;
-                        p = new MCTSPBPlayer(seed, playerID++, mctsPBParams);
-                        playerStr[i - 4] = "MCTSPB";
+                        p = new MCTSPBBRPlayer(seed, playerID++, mctsPBParams);
+                        playerStr[i - 4] = "MCTSPBBR";
                         break;
                     default:
                         System.out.println("WARNING: Invalid agent ID: " + agentType);

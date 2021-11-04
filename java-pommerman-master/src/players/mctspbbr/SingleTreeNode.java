@@ -1,21 +1,20 @@
-package players.mctspb;
+package players.mctspbbr;
 
 import core.GameState;
 import players.heuristics.AdvancedHeuristic;
 import players.heuristics.CustomHeuristic;
 import players.heuristics.StateHeuristic;
-import players.mctspb.MCTSPBParams;
 import utils.ElapsedCpuTimer;
 import utils.Types;
 import utils.Utils;
 import utils.Vector2d;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class SingleTreeNode {
-    public MCTSPBParams params;
-
+    public MCTSPBBRParams params;
     private SingleTreeNode parent;
     private SingleTreeNode[] children;
     private double totValue;
@@ -32,15 +31,11 @@ public class SingleTreeNode {
     private GameState rootState;
     private StateHeuristic rootStateHeuristic;
 
-    // Apply transpositions
-    private int node_key;
-    private String node_value;
-
-    SingleTreeNode(MCTSPBParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
+    SingleTreeNode(MCTSPBBRParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
         this(p, null, -1, rnd, num_actions, actions, 0, null);
     }
 
-    private SingleTreeNode(MCTSPBParams p, SingleTreeNode parent, int childIdx, Random rnd, int num_actions,
+    private SingleTreeNode(MCTSPBBRParams p, SingleTreeNode parent, int childIdx, Random rnd, int num_actions,
                            Types.ACTIONS[] actions, int fmCallsCount, StateHeuristic sh) {
         this.params = p;
         this.fmCallsCount = fmCallsCount;
@@ -199,7 +194,7 @@ public class SingleTreeNode {
         int thisDepth = this.m_depth;
 
         while (!finishRollout(state, thisDepth)) {
-            int action = safeRandomAction(state);
+            int action = biasAction(state);
             roll(state, actions[action]);
             thisDepth++;
         }
@@ -207,31 +202,44 @@ public class SingleTreeNode {
         return rootStateHeuristic.evaluateState(state);
     }
 
-    private int safeRandomAction(GameState state) {
+    private int biasAction(GameState state) {
         Types.TILETYPE[][] board = state.getBoard();
-        ArrayList<Types.ACTIONS> actionsToTry = Types.ACTIONS.all();
+        ArrayList<Types.ACTIONS> actionsList = Types.ACTIONS.all();
         int width = board.length;
         int height = board[0].length;
 
-        while (actionsToTry.size() > 0) {
+        HashMap<Integer, Double> weights = new HashMap<>();
+        double totalWeights = 0;
+        int bestAction = 0;
 
-            int nAction = m_rnd.nextInt(actionsToTry.size());
-            Types.ACTIONS act = actionsToTry.get(nAction);
+
+        for (int i = 0; i < actionsList.size(); i++) {
+            Types.ACTIONS act = actionsList.get(i);
             Vector2d dir = act.getDirection().toVec();
-
             Vector2d pos = state.getPosition();
             int x = pos.x + dir.x;
             int y = pos.y + dir.y;
-
             if (x >= 0 && x < width && y >= 0 && y < height)
-                if (board[y][x] != Types.TILETYPE.FLAMES)
-                    return nAction;
-
-            actionsToTry.remove(nAction);
+                if (board[y][x] != Types.TILETYPE.FLAMES) {
+                    GameState stateCopy = state.copy();
+                    roll(stateCopy, act);
+                    double value = rootStateHeuristic.evaluateState(stateCopy);
+                    weights.put(i, value);
+                    totalWeights += value;
+                }
         }
-
-        //Uh oh...
-        return m_rnd.nextInt(num_actions);
+        double randomValue = m_rnd.nextDouble();
+        double lastValue = 0;
+        for (int i = 0; i < weights.size(); i++) {
+            if (weights.get(i) != null) {
+                if (lastValue <= randomValue && randomValue <= (lastValue + weights.get(i) / totalWeights)) {
+                    bestAction = i;
+                } else {
+                    lastValue += weights.get(i) / totalWeights;
+                }
+            }
+        }
+        return bestAction;
     }
 
     @SuppressWarnings("RedundantIfStatement")

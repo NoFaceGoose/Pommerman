@@ -1,9 +1,7 @@
-package players.mctspb;
+package players.mctspbbr;
 
 import core.GameState;
 import players.Player;
-import players.mctspb.MCTSPBParams;
-import players.mctspb.SingleTreeNode;
 import players.optimisers.ParameterizedPlayer;
 import utils.ElapsedCpuTimer;
 import utils.Types;
@@ -11,7 +9,7 @@ import utils.Types;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MCTSPBPlayer extends ParameterizedPlayer {
+public class MCTSPBBRPlayer extends ParameterizedPlayer {
 
     /**
      * Random generator.
@@ -26,13 +24,13 @@ public class MCTSPBPlayer extends ParameterizedPlayer {
     /**
      * Params for this MCTS
      */
-    public MCTSPBParams params;
+    public MCTSPBBRParams params;
 
-    public MCTSPBPlayer(long seed, int id) {
-        this(seed, id, new MCTSPBParams());
+    public MCTSPBBRPlayer(long seed, int id) {
+        this(seed, id, new MCTSPBBRParams());
     }
 
-    public MCTSPBPlayer(long seed, int id, MCTSPBParams params) {
+    public MCTSPBBRPlayer(long seed, int id, MCTSPBBRParams params) {
         super(seed, id, params);
         reset(seed, id);
 
@@ -49,9 +47,9 @@ public class MCTSPBPlayer extends ParameterizedPlayer {
         super.reset(seed, playerID);
         m_rnd = new Random(seed);
 
-        this.params = (MCTSPBParams) getParameters();
+        this.params = (MCTSPBBRParams) getParameters();
         if (this.params == null) {
-            this.params = new MCTSPBParams();
+            this.params = new MCTSPBBRParams();
             super.setParameters(this.params);
         }
     }
@@ -96,6 +94,6 @@ public class MCTSPBPlayer extends ParameterizedPlayer {
 
     @Override
     public Player copy() {
-        return new MCTSPBPlayer(seed, playerID, params);
+        return new MCTSPBBRPlayer(seed, playerID, params);
     }
 }
