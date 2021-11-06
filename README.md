@@ -1,4 +1,4 @@
-# How to **call** the agents
+# How to **call** constructors of the agents
 #### MillisecondPlayer 
 
 (Decide the action on current millisecond % number of available actions)
