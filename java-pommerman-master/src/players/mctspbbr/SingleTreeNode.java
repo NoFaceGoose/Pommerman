@@ -198,7 +198,6 @@ public class SingleTreeNode {
             int action = biasAction(state);
             // int action = safeRandomAction(state);
             roll(state, actions[action]);
-            roll(state, actions[action]);
             thisDepth++;
         }
 
