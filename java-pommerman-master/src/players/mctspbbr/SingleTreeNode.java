@@ -194,17 +194,16 @@ public class SingleTreeNode {
     private double rollOut(GameState state) {
         int thisDepth = this.m_depth;
         int action;
+        int bias = m_rnd.nextInt(3);
         while (!finishRollout(state, thisDepth)) {
-            if (thisDepth % 4 == 0) {
+            if (thisDepth % 3 == bias) {
                 action = biasAction(state);
             } else {
                 action = safeRandomAction(state);
             }
-            // int action = safeRandomAction(state);
             roll(state, actions[action]);
             thisDepth++;
         }
-
         return rootStateHeuristic.evaluateState(state);
     }
 
