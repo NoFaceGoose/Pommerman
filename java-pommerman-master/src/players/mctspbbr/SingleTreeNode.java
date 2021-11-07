@@ -193,9 +193,13 @@ public class SingleTreeNode {
 
     private double rollOut(GameState state) {
         int thisDepth = this.m_depth;
-
+        int action;
         while (!finishRollout(state, thisDepth)) {
-            int action = biasAction(state);
+            if (thisDepth % 4 == 0) {
+                action = biasAction(state);
+            } else {
+                action = safeRandomAction(state);
+            }
             // int action = safeRandomAction(state);
             roll(state, actions[action]);
             thisDepth++;
