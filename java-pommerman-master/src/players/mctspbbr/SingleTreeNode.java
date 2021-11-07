@@ -247,6 +247,7 @@ public class SingleTreeNode {
                 // using bias for actions accounting for more weight
                 if (lastValue <= randomValue && randomValue <= (lastValue + weights.get(i) / totalWeights)) {
                     biasAction = i;
+                    break;
                 } else {
                     lastValue += weights.get(i) / totalWeights;
                 }
