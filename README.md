@@ -66,5 +66,5 @@ MCTSPBBRParams mctsPBBRParams = new MCTSPBBRParams();
 mctsPBBRParams.stop_type = mctsPBBRParams.STOP_ITERATIONS;
 mctsPBBRParams.heuristic_method = mctsPBBRParams.CUSTOM_HEURISTIC;
 
-players.add(new MCTSPBBRPlayer(seed, playerID++, new mctsPBBRParams()));
+players.add(new MCTSPBBRPlayer(seed, playerID++, mctsPBBRParams));
 ```
